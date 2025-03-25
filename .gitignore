@@ -1,1 +1,9 @@
 venv/
+# Bỏ qua toàn bộ nội dung thư mục outputs/
+outputs/
+
+# Bỏ qua toàn bộ nội dung thư mục uploads/
+uploads/
+
+# Bỏ qua tất cả file có đuôi .db
+*.db

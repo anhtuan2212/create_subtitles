@@ -1,20 +1,32 @@
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("uploadForm");
     const taskTable = document.getElementById("taskTable");
+  
+    // 👉 Tạo phần loading
+    const loadingIndicator = document.createElement("div");
+    loadingIndicator.innerHTML = `
+      <div class="text-center my-2" id="uploadLoading" style="display: none;">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div>Đang tải lên file...</div>
+      </div>
+    `;
+    form.appendChild(loadingIndicator);
+  
     function renderStatus(status) {
-        switch (status) {
-          case 'pending':
-            return 'Chờ xử lý';
-          case 'processing':
-            return `<span class="spinner-border spinner-border-sm text-primary me-1" role="status" aria-hidden="true"></span>Đang xử lý`;
-          case 'done':
-            return 'Hoàn thành';
-          case 'error':
-            return 'Lỗi';
-          default:
-            return 'Không rõ';
-        }
+      switch (status) {
+        case 'pending':
+          return 'Chờ xử lý';
+        case 'processing':
+          return `<span class="spinner-border spinner-border-sm text-primary me-1" role="status" aria-hidden="true"></span>Đang xử lý`;
+        case 'done':
+          return 'Hoàn thành';
+        case 'error':
+          return 'Lỗi';
+        default:
+          return 'Không rõ';
       }
+    }
+  
     function fetchTasks() {
       fetch("/tasks")
         .then((res) => res.json())
@@ -38,19 +50,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   
     form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const formData = new FormData(form);
-      fetch("/submit", {
-        method: "POST",
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then(() => {
-          form.reset();
-          setTimeout(fetchTasks, 1000);
-        });
-    });
-  
+        e.preventDefault();
+        const formData = new FormData(form);
+      
+        // 👉 Hiện overlay loading
+        document.getElementById("uploadOverlay").style.display = "flex";
+      
+        fetch("/submit", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then(() => {
+            form.reset();
+            setTimeout(fetchTasks, 1000);
+          })
+          .finally(() => {
+            // 👉 Ẩn overlay khi xong
+            document.getElementById("uploadOverlay").style.display = "none";
+          });
+      });
+      
     window.cancelTask = function (id) {
       fetch(`/cancel/${id}`, { method: "POST" }).then(fetchTasks);
     };
@@ -62,4 +82,3 @@ document.addEventListener("DOMContentLoaded", function () {
     setInterval(fetchTasks, 2000);
     fetchTasks();
   });
-  

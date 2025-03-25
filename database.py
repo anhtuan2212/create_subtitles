@@ -11,9 +11,18 @@ def init_db():
         )''')
         conn.commit()
 
-def update_task_status(task_id, status):
+def update_task_status(task_id, status, srt_path=None):
     with sqlite3.connect('tasks.db') as conn:
-        conn.execute("UPDATE tasks SET status = ? WHERE id = ?", (status, task_id))
+        if srt_path:
+            conn.execute(
+                "UPDATE tasks SET status = ?, srt_path = ? WHERE id = ?",
+                (status, srt_path, task_id)
+            )
+        else:
+            conn.execute(
+                "UPDATE tasks SET status = ? WHERE id = ?",
+                (status, task_id)
+            )
         conn.commit()
 
 def insert_task(task_id, status, docx_path, audio_path, srt_path):
@@ -34,7 +43,7 @@ def get_all_tasks():
                 'srt': row[4]
             } for row in cur.fetchall()
         ]
-        
+
 def delete_task(task_id):
     with sqlite3.connect('tasks.db') as conn:
         cur = conn.execute("SELECT docx_path, audio_path, srt_path FROM tasks WHERE id = ?", (task_id,))

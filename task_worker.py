@@ -61,7 +61,7 @@ def worker():
 
             # Ghi ra file SRT
             generate_srt_from_whisper(mapped_segments, task['srt_path'])
-            update_task_status(task_id, 'done')
+            update_task_status(task_id, 'done',task['srt_path'])
         except Exception as e:
             print(f"Task {task_id} failed: {str(e)}")
             update_task_status(task_id, 'error')
